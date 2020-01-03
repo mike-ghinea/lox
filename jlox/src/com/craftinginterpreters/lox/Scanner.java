@@ -73,6 +73,8 @@ class Scanner {
                 if (match('/')) {
                     // A comment goes until the end of the line.
                     while (peek() != '\n' && !isAtEnd()) advance();
+                } else if (match('*')) {
+                    multiLineComment();
                 } else {
                     addToken(SLASH);
                 }
@@ -151,6 +153,22 @@ class Scanner {
         // Trim the surrounding quotes.
         String value = source.substring(start + 1, current - 1);
         addToken(STRING, value);
+    }
+
+    private void multiLineComment() {
+        while (peek() != '*' && peekNext() != '/' && !isAtEnd())
+        {
+            // Keep track of new newlines
+            if (peek() == '\n') line++;
+            advance();
+        }
+
+        // Consume the closing */
+        advance();
+        advance();
+
+        // I opted to not add nesting since it would get needlessly complicated
+        // I'd have to keep a stack to ensure I close all my opening /*
     }
 
     private boolean match(char expected) {
